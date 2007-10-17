@@ -6,14 +6,14 @@ $GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup'] = unserialize($_EXTCONF);
 if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['ctype_image_add_ref']) {
 
 	t3lib_extMgm::addTypoScript($_EXTKEY,'setup','
-		includeLibs.tx_damttcontent = EXT:dam/lib/class.tx_dam_tcefunc.php
+		includeLibs.tx_damttcontent = EXT:dam/lib/class.tx_dam_tsfe.php
 
 		temp.tx_dam.fileList < tt_content.image.20.imgList
 
 		tt_content.image.20.imgList >
 		tt_content.image.20.imgList.cObject = USER
 		tt_content.image.20.imgList.cObject {
-			userFunc = tx_dam_tceFunc->fetchFileList
+			userFunc = tx_dam_tsfe->fetchFileList
 
 			refField = tx_damttcontent_files
 
@@ -30,14 +30,14 @@ if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['ctype_image_add_ref']) 
 if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['ctype_textpic_add_ref']) {
 
 	t3lib_extMgm::addTypoScript($_EXTKEY,'setup','
-		includeLibs.tx_damttcontent = EXT:dam/lib/class.tx_dam_tcefunc.php
+		includeLibs.tx_damttcontent = EXT:dam/lib/class.tx_dam_tsfe.php
 
 		temp.tx_dam.fileList < tt_content.textpic.20.imgList
 
 		tt_content.textpic.20.imgList >
 		tt_content.textpic.20.imgList.cObject = USER
 		tt_content.textpic.20.imgList.cObject {
-			userFunc = tx_dam_tceFunc->fetchFileList
+			userFunc = tx_dam_tsfe->fetchFileList
 
 			refField = tx_damttcontent_files
 
