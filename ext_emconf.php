@@ -3,7 +3,7 @@
 ########################################################################
 # Extension Manager/Repository config file for ext: "dam_ttcontent"
 #
-# Auto generated 31-08-2006 20:40
+# Auto generated 29-09-2007 00:50
 #
 # Manual updates:
 # Only the data in the array - anything else is removed by next write.
@@ -15,7 +15,6 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Modify the content types "Image" and "Text/Image" for usage of the DAM.',
 	'category' => 'fe',
 	'shy' => 0,
-	'version' => '1.0.1',
 	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
@@ -25,27 +24,27 @@ $EM_CONF[$_EXTKEY] = array(
 	'uploadfolder' => 0,
 	'createDirs' => '',
 	'modify_tables' => 'tt_content',
-	'clearcacheonload' => 0,
+	'clearCacheOnLoad' => 0,
 	'lockType' => '',
-	'author' => 'Rene Fritz',
+	'author' => 'René Fritz',
 	'author_email' => 'r.fritz@colorcube.de',
-	'author_company' => 'Colorcube - digital media lab, www.colorcube.de',
+	'author_company' => 'Colorcube - digital media lab',
 	'CGLcompliance' => '',
 	'CGLcompliance_note' => '',
+	'version' => '0.1.0',
 	'constraints' => array(
 		'depends' => array(
+			'typo3' => '3.5.0-0.0.0',
+			'php' => '3.0.0-0.0.0',
 			'cms' => '',
 			'dam' => '',
-			'mmforeign' => '',
-			'php' => '4.0.0-',
-			'typo3' => '3.8.0-',
 		),
 		'conflicts' => array(
 		),
 		'suggests' => array(
 		),
 	),
-	'_md5_values_when_last_written' => 'a:6:{s:21:"ext_conf_template.txt";s:4:"f401";s:12:"ext_icon.gif";s:4:"999b";s:17:"ext_localconf.php";s:4:"ce88";s:14:"ext_tables.php";s:4:"0feb";s:14:"ext_tables.sql";s:4:"aa4c";s:14:"doc/manual.sxw";s:4:"6056";}',
+	'_md5_values_when_last_written' => 'a:6:{s:21:"ext_conf_template.txt";s:4:"f401";s:12:"ext_icon.gif";s:4:"999b";s:17:"ext_localconf.php";s:4:"cbbc";s:14:"ext_tables.php";s:4:"7b18";s:14:"ext_tables.sql";s:4:"aa4c";s:14:"doc/manual.sxw";s:4:"56a1";}',
 );
 
 ?>
