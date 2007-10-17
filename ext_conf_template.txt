@@ -6,3 +6,5 @@ ctype_image_add_orig_field = 1
 ctype_textpic_add_ref = 1
   # cat=basic/enable; type=boolean; label=CType Text w/image: Enable original file field for the content type "Text w/image" as second image field.
 ctype_textpic_add_orig_field = 1
+  # cat=basic/enable; type=boolean; label=Alternative CSS Styled Rendering: Enable alternative rendering for css_styled_content to .
+add_css_styled_hook = 1

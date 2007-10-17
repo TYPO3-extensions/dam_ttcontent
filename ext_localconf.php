@@ -53,4 +53,9 @@ if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['ctype_textpic_add_ref']
 	',43);
 }
 
+
+if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['add_css_styled_hook']) {
+	$TYPO3_CONF_VARS['EXTCONF']['css_styled_content']['pi1_hooks']['render_textpic'] = 'EXT:dam_ttcontent/pi_cssstyledcontent/class.tx_damttcontent_pi1.php:&tx_damttcontent_pi1';
+}
+
 ?>

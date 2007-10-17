@@ -1,13 +1,10 @@
 <?php
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
-//$tempColumns = array(
-//	'tx_damttcontent_files' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_field']
-//);
+
 $tempColumns = array(
 	'tx_damttcontent_files' => txdam_getMediaTCA('image_field', 'tx_damttcontent_files')
 );
-
 
 t3lib_div::loadTCA('tt_content');
 t3lib_extMgm::addTCAcolumns('tt_content',$tempColumns,1);
@@ -35,6 +32,22 @@ if ($tempSetup['ctype_textpic_add_ref']) {
 	} else {
 		$TCA['tt_content']['types']['textpic']['showitem'] = str_replace(', image;', ', tx_damttcontent_files;', $TCA['tt_content']['types']['textpic']['showitem']);
 	}
+}
+
+if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['add_css_styled_hook']) {
+	
+	t3lib_extMgm::addStaticFile($_EXTKEY,'pi_cssstyledcontent/static/','DAM: CSS Styled Content');
+	
+	$TCA['tt_content']['columns']['imagecaption_position']['config']['items'] = array (
+				array('LLL:EXT:lang/locallang_general.xml:LGL.default_value', ''),
+				array('LLL:EXT:cms/locallang_ttc.xml:imagecaption_position.I.1', 'center'),
+				array('LLL:EXT:cms/locallang_ttc.xml:imagecaption_position.I.2', 'right'),
+				array('LLL:EXT:cms/locallang_ttc.xml:imagecaption_position.I.3', 'left'),
+				array('LLL:EXT:lang/locallang_core.xml:labels.hidden', 'hidden'),
+			);	
+			
+	$TCA['tt_content']['palettes']['5'] = array('showitem' => 'imagecaption_position', 'canNotCollapse' => '1');
+
 }
 
 ?>
