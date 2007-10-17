@@ -1,4 +1,8 @@
-07-02-16 Rene Fritz  <r.fritz@colorcube.de>
+2007-10-17  Michael Stucki  <michael@typo3.org>
+
+	* Takeover by the DAM development team
+
+2007-02-16  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: remove mmforeign dependency
 	* Added: use ext_update.php to create warnings in EM when needed: mmforeign or T3 4.1.
