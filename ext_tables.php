@@ -1,9 +1,7 @@
 <?php
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
-//$tempColumns = array(
-//	'tx_damttcontent_files' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_field']
-//);
+
 $tempColumns = array(
 	'tx_damttcontent_files' => txdam_getMediaTCA('image_field', 'tx_damttcontent_files')
 );

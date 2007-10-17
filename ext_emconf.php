@@ -12,10 +12,10 @@
 
 $EM_CONF[$_EXTKEY] = array(
 	'title' => 'Content/DAM reference usage',
-	'description' => 'Modify the content types "Image" and "Text/Image" for usage of the DAM.',
+	'description' => 'Modify the content types "Image" and "Text/Image" for usage of the DAM. This depends on TYPO3 4.1 or the extension \'mmforeign\'.',
 	'category' => 'fe',
 	'shy' => 0,
-	'version' => '1.0.1',
+	'version' => '1.0.2',
 	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
@@ -36,7 +36,6 @@ $EM_CONF[$_EXTKEY] = array(
 		'depends' => array(
 			'cms' => '',
 			'dam' => '',
-			'mmforeign' => '',
 			'php' => '4.0.0-0.0.0',
 			'typo3' => '3.8.0-0.0.0',
 		),
@@ -45,7 +44,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'suggests' => array(
 		),
 	),
-	'_md5_values_when_last_written' => 'a:6:{s:21:"ext_conf_template.txt";s:4:"f401";s:12:"ext_icon.gif";s:4:"999b";s:17:"ext_localconf.php";s:4:"ce88";s:14:"ext_tables.php";s:4:"0feb";s:14:"ext_tables.sql";s:4:"aa4c";s:14:"doc/manual.sxw";s:4:"6056";}',
+	'_md5_values_when_last_written' => 'a:8:{s:9:"ChangeLog";s:4:"d1ab";s:20:"class.ext_update.php";s:4:"ea51";s:21:"ext_conf_template.txt";s:4:"f401";s:12:"ext_icon.gif";s:4:"999b";s:17:"ext_localconf.php";s:4:"ce88";s:14:"ext_tables.php";s:4:"f3e4";s:14:"ext_tables.sql";s:4:"aa4c";s:14:"doc/manual.sxw";s:4:"6056";}',
 );
 
 ?>

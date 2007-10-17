@@ -1,0 +1,4 @@
+07-02-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: remove mmforeign dependency
+	* Added: use ext_update.php to create warnings in EM when needed: mmforeign or T3 4.1.
