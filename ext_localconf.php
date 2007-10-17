@@ -16,6 +16,7 @@ if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['ctype_image_add_ref']) 
 			userFunc = tx_dam_tsfe->fetchFileList
 
 			refField = tx_damttcontent_files
+			refTable = tt_content
 
 			additional.fileList < temp.tx_dam.fileList
 			additional.filePath < tt_content.image.20.imgPath
@@ -40,6 +41,7 @@ if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['ctype_textpic_add_ref']
 			userFunc = tx_dam_tsfe->fetchFileList
 
 			refField = tx_damttcontent_files
+			refTable = tt_content
 
 			additional.fileList < temp.tx_dam.fileList
 			additional.filePath < tt_content.textpic.20.imgPath
