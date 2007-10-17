@@ -565,7 +565,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam_ttcontent/pi1/class.tx_damttcontent_pi1.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam_ttcontent/pi1/class.tx_damttcontent_pi1.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam_ttcontent/pi_cssstyledcontent/class.tx_damttcontent_pi1.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam_ttcontent/pi_cssstyledcontent/class.tx_damttcontent_pi1.php']);
 }
 ?>

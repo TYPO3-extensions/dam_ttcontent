@@ -12,11 +12,11 @@
 
 $EM_CONF[$_EXTKEY] = array(
 	'title' => 'DAM for Content Elements',
-	'description' => 'Enhance some of the default content elements to make use of DAM functionality. Eg. modify the content types "Image" and "Text/Image" for usage of the DAM.',
+	'description' => 'Enhance some of the default content elements to make use of DAM functionality. Eg. modify the content types "Image" and "Text/Image" for usage of the DAM. This depends on TYPO3 4.1 or the extension \'mmforeign\'.',
 	'category' => 'fe',
 	'shy' => 0,
 	'version' => '1.0.100',
-	'dependencies' => 'cms,dam,mmforeign',
+	'dependencies' => 'cms,dam',
 	'conflicts' => '',
 	'priority' => '',
 	'loadOrder' => '',
@@ -36,7 +36,6 @@ $EM_CONF[$_EXTKEY] = array(
 		'depends' => array(
 			'cms' => '',
 			'dam' => '',
-			'mmforeign' => '',
 			'php' => '4.0.0-',
 			'typo3' => '3.8.0-',
 		),
