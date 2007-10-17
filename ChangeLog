@@ -1,3 +1,7 @@
+2007-04-07 Rene Fritz <r.fritz@colorcube.de>
+
+	* Fix: 5301: DAM 1.1 Beta5 dam_ttcontent does not respect multi-language records (changed to use 'media' object which fetches the right language in FE automatically)
+
 07-02-21 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: modifications to the page module (XCLASS) to enable the display of thumbnails.

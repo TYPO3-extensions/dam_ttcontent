@@ -249,6 +249,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		$imgsTag = array();
 		$imgsExtraData = array();
 		$origImages = array();
+				
 		for ($a=0; $a<$imgCount; $a++)	{
 			$imgKey = $a+$imgStart;
 			$totalImagePath = $imgPath.$imgs[$imgKey];
@@ -258,21 +259,18 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$GLOBALS['TSFE']->register['ORIG_FILENAME'] = $totalImagePath;
 
 			$this->pObj->cObj->data[$this->pObj->cObj->currentValKey] = $totalImagePath;
-			
-			
-			
-			
-			// fetch DAM data and provide it as fiel data prefixed with txdam_
-			
-			if ($meta = tx_dam::meta_getDataForFile($totalImagePath, '*')) {
-				$this->addMetaToData ($meta);
-				$imgsExtraData[$imgKey] = $meta;
+
+
+				// fetch DAM data and provide it as field data prefixed with txdam_	
+			$media = tx_dam::media_getForFile($totalImagePath, '*');
+			if ($media->isAvailable) {
+				$this->addMetaToData ($media->getMetaArray());
+				$imgsExtraData[$imgKey] = $media->getMetaArray();
 			} else {
 				$this->removeMetaFromData ();
-				$imgsExtraData[$imgKey] = array();;
+				$imgsExtraData[$imgKey] = array();
 			}			
-			
-		
+			unset($media);
 			
 			$imgObjNum = intval($splitArr[$a]['imgObjNum']);
 			$imgConf = $conf[$imgObjNum.'.'];
