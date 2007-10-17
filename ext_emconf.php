@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Enhance some of the default content elements to make use of DAM functionality. Eg. modify the content types "Image" and "Text/Image" for usage of the DAM. This depends on TYPO3 4.1 or the extension \'mmforeign\'.',
 	'category' => 'fe',
 	'shy' => 0,
-	'version' => '1.0.100',
+	'version' => '1.0.101',
 	'dependencies' => 'cms,dam',
 	'conflicts' => '',
 	'priority' => '',
@@ -27,9 +27,9 @@ $EM_CONF[$_EXTKEY] = array(
 	'modify_tables' => 'tt_content',
 	'clearcacheonload' => 0,
 	'lockType' => '',
-	'author' => 'Rene Fritz',
-	'author_email' => 'r.fritz@colorcube.de',
-	'author_company' => 'Colorcube - digital media lab, www.colorcube.de',
+	'author' => 'The DAM development team',
+	'author_email' => 'typo3-project-dam@lists.netfielders.de',
+	'author_company' => '',
 	'CGLcompliance' => '',
 	'CGLcompliance_note' => '',
 	'constraints' => array(
@@ -44,7 +44,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'suggests' => array(
 		),
 	),
-	'_md5_values_when_last_written' => 'a:9:{s:21:"ext_conf_template.txt";s:4:"fd44";s:12:"ext_icon.gif";s:4:"999b";s:17:"ext_localconf.php";s:4:"b3ab";s:14:"ext_tables.php";s:4:"ed83";s:14:"ext_tables.sql";s:4:"aa4c";s:14:"doc/manual.sxw";s:4:"5512";s:49:"pi_cssstyledcontent/class.tx_damttcontent_pi1.php";s:4:"0344";s:40:"pi_cssstyledcontent/static/constants.txt";s:4:"5c90";s:36:"pi_cssstyledcontent/static/setup.txt";s:4:"2823";}',
+	'_md5_values_when_last_written' => '',
 	'suggests' => array(
 	),
 );
