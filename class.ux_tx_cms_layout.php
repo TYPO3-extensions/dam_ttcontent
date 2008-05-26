@@ -118,17 +118,16 @@ class ux_tx_cms_layout extends tx_cms_layout {
 						require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 						$config = $TCA['tt_content']['columns']['tx_damttcontent_files']['config'];
 						$filesArray = tx_dam_db::getReferencedFiles('tt_content', $row['uid'], $config['MM_match_fields'], $config['MM'], 'tx_dam.*');
+
 						foreach($filesArray['rows'] as $rowDAM)	{
 							$caption = tx_dam_guiFunc::meta_compileInfoData($rowDAM, '_caption:truncate:100', 'value-string');
-							
+
 							#$imgAttributes['title'] = tx_dam_guiFunc::meta_compileHoverText($rowDAM);
 							#$thumb = tx_dam_image::previewImgTag($rowDAM, '', $imgAttributes);
 							$thumb = tx_dam_guiFunc::thumbnail($rowDAM);
 							$thumb = '<div style="float:left;width:56px; overflow:auto; margin: 2px 5px 2px 0; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$thumb.'</div>';
 							$thumb = '<div>'.$thumb.$caption.'</div><div style="clear:both"></div>';
-							
-							
-							
+
 							$out.= $thumb;
 						}
 					}
@@ -240,9 +239,8 @@ class ux_tx_cms_layout extends tx_cms_layout {
 }
 
 
-
-
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam_ttcontent/class.ux_tx_cms_layout.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam_ttcontent/class.ux_tx_cms_layout.php']);
 }
+
 ?>
