@@ -1,3 +1,7 @@
+2008-09-30  Ingo Renner  <ingo@typo3.org>
+
+	* Fixed Bug #8529: dam_ttcontent does not respect workspaces
+
 2007-10-17  Michael Stucki  <michael@typo3.org>
 
 	* Takeover by the DAM development team

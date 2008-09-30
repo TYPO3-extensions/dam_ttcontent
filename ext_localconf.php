@@ -5,7 +5,9 @@ $GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup'] = unserialize($_EXTCONF);
 
 if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctype_image_add_ref']) {
 
-	t3lib_extMgm::addTypoScript($_EXTKEY,'setup','
+	t3lib_extMgm::addTypoScript(
+		$_EXTKEY,
+		'setup','
 		includeLibs.tx_damttcontent = EXT:dam/lib/class.tx_dam_tsfe.php
 
 		temp.tx_dam.fileList < tt_content.image.20.imgList
@@ -25,12 +27,16 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctype_image_add_ref']) {
 		tt_content.image.20.imgPath >
 		tt_content.image.20.imgPath =
 
-	',43);
+		',
+		43
+	);
 }
 
 if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctype_textpic_add_ref']) {
 
-	t3lib_extMgm::addTypoScript($_EXTKEY,'setup','
+	t3lib_extMgm::addTypoScript(
+		$_EXTKEY,
+		'setup','
 		includeLibs.tx_damttcontent = EXT:dam/lib/class.tx_dam_tsfe.php
 
 		temp.tx_dam.fileList < tt_content.textpic.20.imgList
@@ -50,9 +56,13 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctype_textpic_add_ref']) {
 		tt_content.textpic.20.imgPath >
 		tt_content.textpic.20.imgPath =
 
-	',43);
+		',
+		43
+	);
 }
 
+
+$PATH_damttcontent = t3lib_extMgm::extPath('dam_ttcontent');
 
 if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_css_styled_hook']) {
 	$TYPO3_CONF_VARS['EXTCONF']['css_styled_content']['pi1_hooks']['render_textpic'] = 'EXT:dam_ttcontent/pi_cssstyledcontent/class.tx_damttcontent_pi1.php:&tx_damttcontent_pi1';
@@ -60,7 +70,18 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_css_styled_hook']) {
 
 
 if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_page_mod_xclass']) {
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/cms/layout/class.tx_cms_layout.php'] = t3lib_extMgm::extPath('dam_ttcontent').'class.ux_tx_cms_layout.php';
+	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/cms/layout/class.tx_cms_layout.php'] = $PATH_damttcontent.'class.ux_tx_cms_layout.php';
+}
+
+
+if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_ws_mod_xclass']) {
+
+		// yes, there's double code in the core!
+	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/mod/user/ws/class.wslib_gui.php'] = $PATH_damttcontent . 'class.ux_wslib_gui.php';
+	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/version/cm1/index.php']             = $PATH_damttcontent . 'class.ux_tx_version_cm1.php';
+
+		// TODO when hook is added to TYPO3 core, add a version check
+	$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/mod/user/ws/class.wslib_gui.php']['postProcessDiffView'][] = 'EXT:dam_ttcontent/class.tx_damttcontent_workspacediffview.php:&tx_damttcontent_workspaceDiffView';
 }
 
 ?>

@@ -10,3 +10,5 @@ ctype_textpic_add_orig_field = 1
 add_css_styled_hook = 1
   # cat=basic/enable; type=boolean; label=Page module modifications: Enable modifications to the page module (XCLASS) to enable the display of thumbnails for reference fields.
 add_page_mod_xclass = 1
+  # cat=basic/enable; type=boolean; label=Workspace module modifications: Enable modifications to the workspace module (XCLASS) to enable the display of thumbnails for reference fields.
+add_ws_mod_xclass = 1

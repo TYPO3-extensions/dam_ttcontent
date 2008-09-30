@@ -117,6 +117,19 @@ class ux_tx_cms_layout extends tx_cms_layout {
 						require_once(PATH_txdam.'lib/class.tx_dam_tcefunc.php');
 						require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 						$config = $TCA['tt_content']['columns']['tx_damttcontent_files']['config'];
+
+						if ($GLOBALS['BE_USER']->workspace !== 0) {
+							$workspaceRecord = t3lib_BEfunc::getWorkspaceVersionOfRecord(
+								$GLOBALS['BE_USER']->workspace,
+								'tt_content',
+								$row['uid']
+							);
+
+							if ($workspaceRecord) {
+								$row = $workspaceRecord;
+							}
+						}
+
 						$filesArray = tx_dam_db::getReferencedFiles('tt_content', $row['uid'], $config['MM_match_fields'], $config['MM'], 'tx_dam.*');
 
 						foreach($filesArray['rows'] as $rowDAM)	{

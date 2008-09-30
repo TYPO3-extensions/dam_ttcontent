@@ -61,7 +61,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$this->pObj->cObj->data['txdam_'.$key] = $value;
 		}
 	}
-	
+
 	function removeMetaFromData () {
 		foreach ($this->pObj->cObj->data as $key => $value) {
 			if (substr($key, 0, 6)=='txdam_') {
@@ -69,8 +69,8 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			}
 		}
 	}
-	
-	
+
+
 
 
 	/**
@@ -84,7 +84,6 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 	 */
 	 function render_textpic($content, $conf)	{
 		global $TYPO3_CONF_VARS;
-		
 
 			// Look for hook before running default code for function
 		if (method_exists($this, 'hookRequest') && $hookObj = &$this->hookRequest('render_textpic'))	{
@@ -97,7 +96,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		if (!$renderMethod || $renderMethod == 'table')	{
 			return $this->pObj->cObj->IMGTEXT($conf);
 		}
-		
+
 			// Specific configuration for the chosen rendering method
 		if (is_array($conf['rendering.'][$renderMethod . '.']))	{
 			$conf = $this->pObj->cObj->joinTSarrays($conf, $conf['rendering.'][$renderMethod . '.']);
@@ -128,11 +127,11 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 
 		$imgPath = $this->pObj->cObj->stdWrap($conf['imgPath'], $conf['imgPath.']);
 
-		
+
 		if ($this->pObj->cObj->data['imagecaption_position']=='hidden') {
 			$hideCaption = true;
 		}
-		
+
 			// Global caption
 		$caption = '';
 		if (!$hideCaption && !$conf['captionEach'] && !$conf['captionSplit'] && !$conf['imageTextSplit'] && is_array($conf['caption.']))	{
@@ -249,7 +248,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		$imgsTag = array();
 		$imgsExtraData = array();
 		$origImages = array();
-				
+
 		for ($a=0; $a<$imgCount; $a++)	{
 			$imgKey = $a+$imgStart;
 			$totalImagePath = $imgPath.$imgs[$imgKey];
@@ -261,7 +260,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$this->pObj->cObj->data[$this->pObj->cObj->currentValKey] = $totalImagePath;
 
 
-				// fetch DAM data and provide it as field data prefixed with txdam_	
+				// fetch DAM data and provide it as field data prefixed with txdam_
 			$media = tx_dam::media_getForFile($totalImagePath, '*');
 			if ($media->isAvailable) {
 				$this->addMetaToData ($media->getMetaArray());
@@ -269,9 +268,9 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			} else {
 				$this->removeMetaFromData ();
 				$imgsExtraData[$imgKey] = array();
-			}			
+			}
 			unset($media);
-			
+
 			$imgObjNum = intval($splitArr[$a]['imgObjNum']);
 			$imgConf = $conf[$imgObjNum.'.'];
 
@@ -414,9 +413,9 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 				if ($separateRows && $colPos == 0) {
 					$thisRow = '';
 				}
-				
-				$this->addMetaToData ($imgsExtraData[$i]);	
-				
+
+				$this->addMetaToData($imgsExtraData[$i]);
+
 
 					// Render one image
 				$imageSpace = $origImages[$i][0] + $border*($borderSpace+$borderThickness)*2;
@@ -534,7 +533,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		}
 
 		$this->removeMetaFromData ();
-				
+
 		return $output;
 	}
 
