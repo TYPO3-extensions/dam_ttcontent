@@ -1,3 +1,7 @@
+2008-09-30  Michiel Roos <michiel@netcreators.com>
+
+	* Fixed Bug #10284: dam_ttcontent has the string '\ No new line at end of file' at the end of several files
+
 2008-09-30  Ingo Renner  <ingo@typo3.org>
 
 	* Fixed Bug #8529: dam_ttcontent does not respect workspaces
