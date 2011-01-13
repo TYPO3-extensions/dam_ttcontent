@@ -12,26 +12,31 @@ t3lib_extMgm::addTCAcolumns('tt_content',$tempColumns,1);
 
 $tempSetup = $GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup'];
 
-## CType image
+// CTypes "text w/image" and "image"
 
-if ($tempSetup['ctype_image_add_ref']) {
+// for TYPO3 < 4.5
+if (($tempSetup['ctypes_textpic_image_add_ref']) && (t3lib_div::int_from_ver(TYPO3_version) < 4005000)) {
 
-	if ($tempSetup['ctype_image_add_orig_field']) {
+	if ($tempSetup['ctypes_textpic_image_add_orig_field']) {
 		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','image','after:image');
-	} else {
-		$TCA['tt_content']['types']['image']['showitem'] = str_replace(', image;', ', tx_damttcontent_files;', $TCA['tt_content']['types']['image']['showitem']);
-	}
-}
-
-## CType textpic
-
-if ($tempSetup['ctype_textpic_add_ref']) {
-
-	if ($tempSetup['ctype_textpic_add_orig_field']) {
 		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','textpic','after:image');
 	} else {
+		$TCA['tt_content']['types']['image']['showitem'] = str_replace(', image;', ', tx_damttcontent_files;', $TCA['tt_content']['types']['image']['showitem']);
 		$TCA['tt_content']['types']['textpic']['showitem'] = str_replace(', image;', ', tx_damttcontent_files;', $TCA['tt_content']['types']['textpic']['showitem']);
 	}
+
+}
+
+// for TYPO3 >= 4.5
+if (($tempSetup['ctypes_textpic_image_add_ref']) && (t3lib_div::int_from_ver(TYPO3_version) >= 4005000)) {
+
+	if ($tempSetup['ctypes_textpic_image_add_orig_field']) {
+		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','image','after:image');
+		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','textpic','after:image');
+	} else {
+		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','textpic','replace:image');
+	}
+
 }
 
 if ($GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup']['add_css_styled_hook']) {
