@@ -58,10 +58,7 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_css_styled_hook']) {
 }
 
 
-if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_page_mod_xclass']) {
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/cms/layout/class.tx_cms_layout.php'] = $PATH_damttcontent.'class.ux_tx_cms_layout.php';
-}
-
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/class.tx_cms_layout.php']['tt_content_drawItem'][$_EXTKEY] = $PATH_damttcontent . 'hooks/class.tx_damttcontent_tt_content_drawItem.php:tx_damttcontent_tt_content_drawItem';
 
 if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_ws_mod_xclass']) {
 

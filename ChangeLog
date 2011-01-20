@@ -1,3 +1,7 @@
+2011-01-20  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+	* Feature #13641: Use new TYPO3 4.3 hook for preview images in page module (Thanks to Dmitry Dulepov)
+
 2011-01-12  Dan Osipov <dosipov@phillyburbs.com>
 
 	* Fixed Bug #16349: Adapt dam_tt_content to the TCA changes in TYPO3 4.5 (Thanks Lorenz Ulrich)
