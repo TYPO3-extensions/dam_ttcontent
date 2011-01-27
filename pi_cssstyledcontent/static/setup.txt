@@ -1,5 +1,3 @@
-
-
 # *****************
 # CType: image
 # *****************
@@ -28,15 +26,24 @@ tt_content.image.20 {
 		1 = TEXT
 		1 {
 			field >
-			data = field : txdam_caption // field : txdam_description // field : imagecaption
-#			data = field : imagecaption // field : txdam_caption // field : txdam_description
+			data = field : txdam_caption // field : txdam_description
 			required = 1
 			parseFunc =< lib.parseFunc
-			br = 1
-			fontTag = <p class="csc-caption">|</p>
 			wrapAlign.field = imagecaption_position
 			split >
 		}
+		1.if.isTrue = {$styles.content.imgtext.captionEach}
+		
+		2 = TEXT
+		2 {
+			field = imagecaption
+			required = 1
+			parseFunc =< lib.parseFunc
+			wrapAlign.field = imagecaption_position
+			split.token.char = 10
+			split.token.if.isPositive = {$styles.content.imgtext.imageTextSplit} + {$styles.content.imgtext.captionSplit}
+			split.returnKey.data = register : IMAGE_NUM_CURRENT
+		}
+		2.if.isFalse = {$styles.content.imgtext.captionEach}
 	}
 }
-
