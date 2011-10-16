@@ -122,7 +122,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		$imgCount = count($imgs) - $imgStart;
 		$imgMax = intval($this->pObj->cObj->stdWrap($conf['imgMax'], $conf['imgMax.']));
 		if ($imgMax)	{
-			$imgCount = t3lib_div::intInRange($imgCount, 0, $conf['imgMax']);	// reduce the number of images.
+			$imgCount = tx_dam::forceIntegerInRange($imgCount, 0, $conf['imgMax']);	// reduce the number of images.
 		}
 
 		$imgPath = $this->pObj->cObj->stdWrap($conf['imgPath'], $conf['imgPath.']);

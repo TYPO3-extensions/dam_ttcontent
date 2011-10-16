@@ -14,21 +14,7 @@ $tempSetup = $GLOBALS['T3_VAR']['ext']['dam_ttcontent']['setup'];
 
 // CTypes "text w/image" and "image"
 
-// for TYPO3 < 4.5
-if (($tempSetup['ctypes_textpic_image_add_ref']) && (t3lib_div::int_from_ver(TYPO3_version) < 4005000)) {
-
-	if ($tempSetup['ctypes_textpic_image_add_orig_field']) {
-		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','image','after:image');
-		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','textpic','after:image');
-	} else {
-		$TCA['tt_content']['types']['image']['showitem'] = str_replace(', image;', ', tx_damttcontent_files;', $TCA['tt_content']['types']['image']['showitem']);
-		$TCA['tt_content']['types']['textpic']['showitem'] = str_replace(', image;', ', tx_damttcontent_files;', $TCA['tt_content']['types']['textpic']['showitem']);
-	}
-
-}
-
-// for TYPO3 >= 4.5
-if (($tempSetup['ctypes_textpic_image_add_ref']) && (t3lib_div::int_from_ver(TYPO3_version) >= 4005000)) {
+if ($tempSetup['ctypes_textpic_image_add_ref']) {
 
 	if ($tempSetup['ctypes_textpic_image_add_orig_field']) {
 		t3lib_extMgm::addToAllTCAtypes('tt_content','tx_damttcontent_files','image','after:image');
