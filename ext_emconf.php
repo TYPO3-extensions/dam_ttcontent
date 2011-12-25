@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Enhance some of the default content elements to make use of DAM functionality. Eg. modify the content types "Image" and "Text/Image" for usage of the DAM.',
 	'category' => 'fe',
 	'shy' => 0,
-	'version' => '1.2.2-dev',
+	'version' => '1.2.3-dev',
 	'dependencies' => 'cms,dam',
 	'conflicts' => '',
 	'priority' => '',
@@ -35,7 +35,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'constraints' => array(
 		'depends' => array(
 			'cms' => '',
-			'dam' => '1.3.0-',
+			'dam' => '1.2.4-',
 			'php' => '4.0.0-',
 			'typo3' => '4.5.0-',
 		),
