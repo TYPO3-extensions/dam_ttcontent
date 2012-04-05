@@ -22,7 +22,7 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctypes_textpic_image_add_ref']
 
 			additional.fileList < temp.tx_dam.fileList
 			additional.filePath < tt_content.image.20.imgPath
-			'.($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctype_image_add_orig_field']?'':'additional >').'
+			' . ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctypes_textpic_image_add_orig_field'] ? '' : 'additional >') . '
 		}
 		tt_content.image.20.imgPath >
 		tt_content.image.20.imgPath =
@@ -40,7 +40,7 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctypes_textpic_image_add_ref']
 
 			additional.fileList < temp.tx_dam.fileList
 			additional.filePath < tt_content.textpic.20.imgPath
-			'.($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctype_textpic_add_orig_field']?'':'additional >').'
+			' . ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['ctypes_textpic_image_add_orig_field'] ? '' : 'additional >') . '
 		}
 		tt_content.textpic.20.imgPath >
 		tt_content.textpic.20.imgPath =
