@@ -32,9 +32,6 @@
  * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
  */
 /**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *
  *
  * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -58,20 +55,58 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 
 	function addMetaToData ($meta) {
 		foreach ($meta as $key => $value) {
-			$this->pObj->cObj->data['txdam_'.$key] = $value;
+			$this->pObj->cObj->data['txdam_' . $key] = $value;
 		}
 	}
 
 	function removeMetaFromData () {
 		foreach ($this->pObj->cObj->data as $key => $value) {
-			if (substr($key, 0, 6)=='txdam_') {
+			if (substr($key, 0, 6) == 'txdam_') {
 				unset($this->pObj->cObj->data[$key]);
 			}
 		}
 	}
 
+	/**
+	 * returns an array containing width relations for $colCount columns.
+	 *
+	 * tries to use "colRelations" setting given by TS.
+	 * uses "1:1" column relations by default.
+	 *
+	 * @param array $conf TS configuration for img
+	 * @param int $colCount number of columns
+	 * @return array
+	 */
+	protected function getImgColumnRelations($conf, $colCount) {
+		$relations = array();
+		$equalRelations= array_fill(0, $colCount, 1);
+		$colRelationsTypoScript = trim($this->pObj->cObj->stdWrap($conf['colRelations'], $conf['colRelations.']));
 
-
+		if ($colRelationsTypoScript) {
+				// try to use column width relations given by TS
+			$relationParts = explode(':', $colRelationsTypoScript);
+				// enough columns defined?
+			if (count($relationParts) >= $colCount) {
+				$out = array();
+				for ($a = 0; $a < $colCount; $a++) {
+					$currentRelationValue = intval($relationParts[$a]);
+					if ($currentRelationValue >= 1) {
+						$out[$a] = $currentRelationValue;
+					} else {
+						t3lib_div::devLog('colRelations used with a value smaller than 1 therefore colRelations setting is ignored.', $this->extKey, 2);
+						unset($out);
+						break;
+					}
+				}
+				if (max($out) / min($out) <= 10) {
+					$relations = $out;
+				} else {
+					t3lib_div::devLog('The difference in size between the largest and smallest colRelation was not within a factor of ten therefore colRelations setting is ignored..', $this->extKey, 2);
+				}
+			}
+		}
+		return $relations ? $relations : $equalRelations;
+	}
 
 	/**
 	 * Rendering the IMGTEXT content element, called from TypoScript (tt_content.textpic.20)
@@ -81,12 +116,11 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 	 * @return	string		HTML output.
 	 * @access private
 	 * @coauthor	Ernesto Baschny <ernst@cron-it.de>
+	 * @coauthor Patrick Broens <patrick@patrickbroens.nl>
 	 */
 	 function render_textpic($content, $conf)	{
-		global $TYPO3_CONF_VARS;
-
 			// Look for hook before running default code for function
-		if (method_exists($this, 'hookRequest') && $hookObj = &$this->hookRequest('render_textpic'))	{
+		if (method_exists($this, 'hookRequest') && $hookObj = $this->hookRequest('render_textpic')) {
 			return $hookObj->render_textpic($content,$conf);
 		}
 
@@ -122,20 +156,36 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		$imgCount = count($imgs) - $imgStart;
 		$imgMax = intval($this->pObj->cObj->stdWrap($conf['imgMax'], $conf['imgMax.']));
 		if ($imgMax)	{
-			$imgCount = tx_dam::forceIntegerInRange($imgCount, 0, $conf['imgMax']);	// reduce the number of images.
+			$imgCount = tx_dam::forceIntegerInRange($imgCount, 0, $imgMax);	// reduce the number of images.
 		}
 
 		$imgPath = $this->pObj->cObj->stdWrap($conf['imgPath'], $conf['imgPath.']);
 
+			// Does we need to render a "global caption" (below the whole image block)?
+		$renderGlobalCaption = !$conf['captionEach'] && !$conf['captionSplit'] && !$conf['imageTextSplit'] && is_array($conf['caption.']);
+		if ($imgCount == 1) {
+				// If we just have one image, the caption relates to the image, so it is not "global"
+			$renderGlobalCaption = FALSE;
+		}
 
-		if ($this->pObj->cObj->data['imagecaption_position']=='hidden') {
-			$hideCaption = true;
+			// Use the calculated information (amount of images, if global caption is wanted) to choose a different rendering method for the images-block
+		$GLOBALS['TSFE']->register['imageCount'] = $imgCount;
+		$GLOBALS['TSFE']->register['renderGlobalCaption'] = $renderGlobalCaption;
+		$fallbackRenderMethod = $this->pObj->cObj->cObjGetSingle($conf['fallbackRendering'], $conf['fallbackRendering.']);
+		if ($fallbackRenderMethod && is_array($conf['rendering.'][$fallbackRenderMethod . '.']))	{
+			$conf = $this->pObj->cObj->joinTSarrays($conf, $conf['rendering.'][$fallbackRenderMethod . '.']);
+		}
+
+			// Set the accessibility mode which uses a different type of markup, used 4.7+
+		$accessibilityMode = FALSE;
+		if (strpos(strtolower($renderMethod), 'caption') || strpos(strtolower($fallbackRenderMethod), 'caption')) {
+			$accessibilityMode = TRUE;
 		}
 
 			// Global caption
-		$caption = '';
-		if (!$hideCaption && !$conf['captionEach'] && !$conf['captionSplit'] && !$conf['imageTextSplit'] && is_array($conf['caption.']))	{
-			$caption = $this->pObj->cObj->stdWrap($this->pObj->cObj->cObjGet($conf['caption.'], 'caption.'), $conf['caption.']);
+		$globalCaption = '';
+		if ($renderGlobalCaption)	{
+			$globalCaption = $this->pObj->cObj->stdWrap($this->pObj->cObj->cObjGet($conf['caption.'], 'caption.'), $conf['caption.']);
 		}
 
 			// Positioning
@@ -176,48 +226,40 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 
 			// Max Width
 		$maxW = intval($this->pObj->cObj->stdWrap($conf['maxW'], $conf['maxW.']));
+		$maxWInText = intval($this->pObj->cObj->stdWrap($conf['maxWInText'], $conf['maxWInText.']));
+		$fiftyPercentWidthInText = round($maxW / 100 * 50);
 
 		if ($contentPosition>=16)	{	// in Text
-			$maxWInText = intval($this->pObj->cObj->stdWrap($conf['maxWInText'],$conf['maxWInText.']));
 			if (!$maxWInText)	{
 					// If maxWInText is not set, it's calculated to the 50% of the max
-				$maxW = round($maxW/100*50);
+				$maxW = $fiftyPercentWidthInText;
 			} else {
 				$maxW = $maxWInText;
 			}
 		}
 
-			// All columns have the same width:
-		$defaultColumnWidth = ceil(($maxW-$colspacing*($colCount-1)-$colCount*$border*($borderThickness+$borderSpace)*2)/$colCount);
+			// Set the margin for image + text, no wrap always to avoid multiple stylesheets
+		if ($accessibilityMode) {
+			$noWrapMargin = (integer) (($maxWInText ? $maxWInText : $fiftyPercentWidthInText) +
+				intval($this->pObj->cObj->stdWrap($conf['textMargin'],$conf['textMargin.'])));
+
+			$this->addPageStyle(
+				'.csc-textpic-intext-right-nowrap .csc-textpic-text',
+				'margin-right: ' . $noWrapMargin . 'px;'
+			);
+
+			$this->addPageStyle(
+				'.csc-textpic-intext-left-nowrap .csc-textpic-text',
+				'margin-left: ' . $noWrapMargin . 'px;'
+			);
+		}
+
+			// max usuable width for images (without spacers and borders)
+		$netW = $maxW - $colspacing * ($colCount - 1) - $colCount * $border * ($borderThickness + $borderSpace) * 2;
 
 			// Specify the maximum width for each column
-		$columnWidths = array();
-		$colRelations = trim($this->pObj->cObj->stdWrap($conf['colRelations'],$conf['colRelations.']));
-		if (!$colRelations)	{
-				// Default 1:1-proportion, all columns same width
-			for ($a=0;$a<$colCount;$a++)	{
-				$columnWidths[$a] = $defaultColumnWidth;
-			}
-		} else {
-				// We need another proportion
-			$rel_parts = explode(':',$colRelations);
-			$rel_total = 0;
-			for ($a=0;$a<$colCount;$a++)	{
-				$rel_parts[$a] = intval($rel_parts[$a]);
-				$rel_total+= $rel_parts[$a];
-			}
-			if ($rel_total)	{
-				for ($a=0;$a<$colCount;$a++)	{
-					$columnWidths[$a] = round(($defaultColumnWidth*$colCount)/$rel_total*$rel_parts[$a]);
-				}
-				if (min($columnWidths)<=0 || max($rel_parts)/min($rel_parts)>10)	{
-					// The difference in size between the largest and smalles must be within a factor of ten.
-					for ($a=0;$a<$colCount;$a++)	{
-						$columnWidths[$a] = $defaultColumnWidth;
-					}
-				}
-			}
-		}
+		$columnWidths = $this->getImgColumnWidths($conf, $colCount, $netW);
+
 		$image_compression = intval($this->pObj->cObj->stdWrap($conf['image_compression'],$conf['image_compression.']));
 		$image_effects = intval($this->pObj->cObj->stdWrap($conf['image_effects'],$conf['image_effects.']));
 		$image_frames = intval($this->pObj->cObj->stdWrap($conf['image_frames.']['key'],$conf['image_frames.']['key.']));
@@ -229,12 +271,14 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$gifCreator = t3lib_div::makeInstance('tslib_gifbuilder');
 			$gifCreator->init();
 			$relations_cols = Array();
+			$imgWidths = array(); // contains the individual width of all images after scaling to $equalHeight
 			for ($a=0; $a<$imgCount; $a++)	{
 				$imgKey = $a+$imgStart;
 				$imgInfo = $gifCreator->getImageDimensions($imgPath.$imgs[$imgKey]);
 				$rel = $imgInfo[1] / $equalHeight;	// relationship between the original height and the wished height
 				if ($rel)	{	// if relations is zero, then the addition of this value is omitted as the image is not expected to display because of some error.
-					$relations_cols[floor($a/$colCount)] += $imgInfo[0]/$rel;	// counts the total width of the row with the new height taken into consideration.
+					$imgWidths[$a] = $imgInfo[0] / $rel;
+					$relations_cols[floor($a/$colCount)] += $imgWidths[$a];	// counts the total width of the row with the new height taken into consideration.
 				}
 			}
 		}
@@ -245,20 +289,18 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		$splitArr = $GLOBALS['TSFE']->tmpl->splitConfArray($splitArr, $imgCount);
 
 		$imageRowsFinalWidths = Array();	// contains the width of every image row
-		$imgsTag = array();
-		$imgsExtraData = array();
+		$imgsTag = array();		// array index of $imgsTag will be the same as in $imgs, but $imgsTag only contains the images that are actually shown
 		$origImages = array();
-
+		$rowIdx = 0;
 		for ($a=0; $a<$imgCount; $a++)	{
 			$imgKey = $a+$imgStart;
 			$totalImagePath = $imgPath.$imgs[$imgKey];
 
-			$GLOBALS['TSFE']->register['IMAGE_NUM'] = $a;
-			$GLOBALS['TSFE']->register['IMAGE_NUM_CURRENT'] = $a;
+			$GLOBALS['TSFE']->register['IMAGE_NUM'] = $imgKey;	// register IMG_NUM is kept for backwards compatibility
+			$GLOBALS['TSFE']->register['IMAGE_NUM_CURRENT'] = $imgKey;
 			$GLOBALS['TSFE']->register['ORIG_FILENAME'] = $totalImagePath;
 
 			$this->pObj->cObj->data[$this->pObj->cObj->currentValKey] = $totalImagePath;
-
 
 				// fetch DAM data and provide it as field data prefixed with txdam_
 			$media = tx_dam::media_getForFile($totalImagePath, '*');
@@ -266,7 +308,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 				$this->addMetaToData ($media->getMetaArray());
 				$imgsExtraData[$imgKey] = $media->getMetaArray();
 			} else {
-				$this->removeMetaFromData ();
+				$this->removeMetaFromData();
 				$imgsExtraData[$imgKey] = array();
 			}
 			unset($media);
@@ -275,18 +317,33 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$imgConf = $conf[$imgObjNum.'.'];
 
 			if ($equalHeight)	{
-				$scale = 1;
-				$totalMaxW = $defaultColumnWidth*$colCount;
-				$rowTotalMaxW = $relations_cols[floor($a/$colCount)];
-				if ($rowTotalMaxW > $totalMaxW)	{
-					$scale = $rowTotalMaxW / $totalMaxW;
+
+				if ($a % $colCount == 0) {
+						// a new row startsS
+					$accumWidth = 0; // reset accumulated net width
+					$accumDesiredWidth = 0; // reset accumulated desired width
+					$rowTotalMaxW = $relations_cols[$rowIdx];
+					if ($rowTotalMaxW > $netW)	{
+						$scale = $rowTotalMaxW / $netW;
+					} else {
+						$scale = 1;
+					}
+					$desiredHeight = $equalHeight / $scale;
+					$rowIdx++;
 				}
 
-					// transfer info to the imageObject. Please note, that
-				$imgConf['file.']['height'] = round($equalHeight/$scale);
+				$availableWidth= $netW - $accumWidth; // this much width is available for the remaining images in this row (int)
+				$desiredWidth= $imgWidths[$a] / $scale; // theoretical width of resized image. (float)
+				$accumDesiredWidth += $desiredWidth; // add this width. $accumDesiredWidth becomes the desired horizontal position
+					// calculate width by comparing actual and desired horizontal position.
+					// this evenly distributes rounding errors across all images in this row.
+				$suggestedWidth = round($accumDesiredWidth - $accumWidth);
+				$finalImgWidth = (int) min($availableWidth, $suggestedWidth); // finalImgWidth may not exceed $availableWidth
+				$accumWidth += $finalImgWidth;
+				$imgConf['file.']['width'] = $finalImgWidth;
+				$imgConf['file.']['height'] = round($desiredHeight);
 
 					// other stuff will be calculated accordingly:
-				unset($imgConf['file.']['width']);
 				unset($imgConf['file.']['maxW']);
 				unset($imgConf['file.']['maxH']);
 				unset($imgConf['file.']['minW']);
@@ -353,7 +410,12 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 				// Store the original filepath
 			$origImages[$imgKey] = $GLOBALS['TSFE']->lastImageInfo;
 
-			$imageRowsFinalWidths[floor($a/$colCount)] += $GLOBALS['TSFE']->lastImageInfo[0];
+			if ($GLOBALS['TSFE']->lastImageInfo[0]==0) {
+				$imageRowsFinalWidths[floor($a/$colCount)] += $this->pObj->cObj->data['imagewidth'];
+			} else {
+				$imageRowsFinalWidths[floor($a/$colCount)] += $GLOBALS['TSFE']->lastImageInfo[0];
+ 			}
+
 		}
 			// How much space will the image-block occupy?
 		$imageBlockWidth = max($imageRowsFinalWidths)+ $colspacing*($colCount-1) + $colCount*$border*($borderSpace+$borderThickness)*2;
@@ -378,6 +440,9 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		}
 
 			// Edit icons:
+		if (!is_array($conf['editIcons.'])) {
+			$conf['editIcons.'] = array();
+		}
 		$editIconsHTML = $conf['editIcons']&&$GLOBALS['TSFE']->beUserLogin ? $this->pObj->cObj->editIcons('',$conf['editIcons'],$conf['editIcons.']) : '';
 
 			// If noRows, we need multiple imagecolumn wraps
@@ -389,138 +454,336 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		if ($noRows)	{ $separateRows = 0; }
 		if ($rowCount == 1)	{ $separateRows = 0; }
 
-			// Apply optionSplit to the list of classes that we want to add to each image
-		$addClassesImage = $conf['addClassesImage'];
-		if ($conf['addClassesImage.'])	{
-			$addClassesImage = $this->pObj->cObj->stdWrap($conf['addClassesImage'], $conf['addClassesImage.']);
-		}
-		$addClassesImageConf = $GLOBALS['TSFE']->tmpl->splitConfArray(array('addClassesImage' => $addClassesImage), $colCount);
+		if ($accessibilityMode) {
+			$imagesInColumns = round(($imgCount / ($rowCount * $colCount)), 0 , PHP_ROUND_HALF_UP);
 
-			// Render the images
-		$images = '';
-		for ($c = 0; $c < $imageWrapCols; $c++)	{
-			$tmpColspacing = $colspacing;
-			if (($c==$imageWrapCols-1 && $imagePosition==2) || ($c==0 && ($imagePosition==1||$imagePosition==0))) {
-					// Do not add spacing after column if we are first column (left) or last column (center/right)
-				$tmpColspacing = 0;
+				// Apply optionSplit to the list of classes that we want to add to each column
+			$addClassesCol = $conf['addClassesCol'];
+			if (isset($conf['addClassesCol.'])) {
+				$addClassesCol = $this->pObj->cObj->stdWrap($addClassesCol, $conf['addClassesCol.']);
 			}
+			$addClassesColConf = $GLOBALS['TSFE']->tmpl->splitConfArray(array('addClassesCol' => $addClassesCol), $colCount);
 
-			$thisImages = '';
-			$allRows = '';
-			$maxImageSpace = 0;
-			for ($i = $c; $i<count($imgsTag); $i=$i+$imageWrapCols)	{
-				$colPos = $i%$colCount;
-				if ($separateRows && $colPos == 0) {
-					$thisRow = '';
-				}
+				// Apply optionSplit to the list of classes that we want to add to each image
+			$addClassesImage = $conf['addClassesImage'];
+			if (isset($conf['addClassesImage.'])) {
+				$addClassesImage = $this->pObj->cObj->stdWrap($addClassesImage, $conf['addClassesImage.']);
+			}
+			$addClassesImageConf = $GLOBALS['TSFE']->tmpl->splitConfArray(array('addClassesImage' => $addClassesImage), $imagesInColumns);
 
-				$this->addMetaToData($imgsExtraData[$i]);
+			$rows = array();
+			$currentImage = 0;
 
+				// Set the class for the caption (split or global)
+			$classCaptionAlign = array(
+				'center' => 'csc-textpic-caption-c',
+				'right' => 'csc-textpic-caption-r',
+				'left' => 'csc-textpic-caption-l',
+			);
 
-					// Render one image
-				$imageSpace = $origImages[$i][0] + $border*($borderSpace+$borderThickness)*2;
-				$GLOBALS['TSFE']->register['IMAGE_NUM'] = $i;
-				$GLOBALS['TSFE']->register['IMAGE_NUM_CURRENT'] = $i;
-				$GLOBALS['TSFE']->register['ORIG_FILENAME'] = $origImages[$i]['origFile'];
-				$GLOBALS['TSFE']->register['imagewidth'] = $origImages[$i][0];
-				$GLOBALS['TSFE']->register['imagespace'] = $imageSpace;
-				$GLOBALS['TSFE']->register['imageheight'] = $origImages[$i][1];
-				if ($imageSpace > $maxImageSpace)	{
-					$maxImageSpace = $imageSpace;
-				}
-				$thisImage = '';
-				$thisImage .= $this->pObj->cObj->stdWrap($imgsTag[$i], $conf['imgTagStdWrap.']);
-				if (!$hideCaption && ($conf['captionEach'] || $conf['captionSplit'] || $conf['imageTextSplit']))	{
-					$thisCaption = $this->pObj->cObj->stdWrap($this->pObj->cObj->cObjGet($conf['caption.'], 'caption.'), $conf['caption.']);
-					$thisImage .= $thisCaption;
-				}
-				if ($editIconsHTML)	{
-					$thisImage .= $this->pObj->cObj->stdWrap($editIconsHTML, $conf['editIconsStdWrap.']);
-				}
-				if ($conf['netprintApplicationLink'])	{
-					$thisImage .= $this->pObj->cObj->netprintApplication_offsiteLinkWrap($thisImage, $origImages[$i], $conf['netprintApplicationLink.']);
-				}
-				$thisImage = $this->pObj->cObj->stdWrap($thisImage, $conf['oneImageStdWrap.']);
-				$classes = '';
-				if ($addClassesImageConf[$colPos]['addClassesImage'])	{
-					$classes = ' ' . $addClassesImageConf[$colPos]['addClassesImage'];
-				}
-				$thisImage = str_replace('###CLASSES###', $classes, $thisImage);
+			$captionAlign = $this->pObj->cObj->stdWrap($conf['captionAlign'], $conf['captionAlign.']);
 
-				if ($separateRows)	{
-					$thisRow .= $thisImage;
+				// Iterate over the rows
+			for ($rowCounter = 1; $rowCounter <= $rowCount; $rowCounter++) {
+				$rowColumns = array();
+					// Iterate over the columns
+				for ($columnCounter = 1; $columnCounter <= $colCount; $columnCounter++) {
+					$columnImages = array();
+						// Iterate over the amount of images allowed in a column
+					for ($imagesCounter = 1; $imagesCounter <= $imagesInColumns; $imagesCounter++) {
+						$image = NULL;
+						$splitCaption = NULL;
+
+							// add DAM metadata to current object
+						$this->addMetaToData($imgsExtraData[$currentImage]);
+
+						$imageMarkers = $captionMarkers = array();
+						$single = '&nbsp;';
+
+							// Set the key of the current image
+						$imageKey = $currentImage + $imgStart;
+
+							// Register IMAGE_NUM_CURRENT for the caption
+						$GLOBALS['TSFE']->register['IMAGE_NUM_CURRENT'] = $imageKey;
+						$this->pObj->cObj->data[$this->pObj->cObj->currentValKey] = $origImages[$imageKey]['origFile'];
+
+							// Get the image if not an empty cell
+						if (isset($imgsTag[$imageKey])) {
+							$image = $this->pObj->cObj->stdWrap($imgsTag[$imageKey], $conf['imgTagStdWrap.']);
+
+								// Add the edit icons
+							if ($editIconsHTML) {
+								$image .= $this->pObj->cObj->stdWrap($editIconsHTML, $conf['editIconsStdWrap.']);
+							}
+
+								// Wrap the single image
+							$single = $this->pObj->cObj->stdWrap($image, $conf['singleStdWrap.']);
+
+								// Get the caption
+							if (!$renderGlobalCaption) {
+								$imageMarkers['caption'] = $this->pObj->cObj->stdWrap(
+									$this->pObj->cObj->cObjGet($conf['caption.'], 'caption.'), $conf['caption.']
+								);
+
+								if ($captionAlign) {
+									$captionMarkers['classes'] = ' ' . $classCaptionAlign[$captionAlign];
+								}
+
+								$imageMarkers['caption'] = $this->pObj->cObj->substituteMarkerArray(
+									$imageMarkers['caption'],
+									$captionMarkers,
+									'###|###',
+									1,
+									1
+								);
+							}
+
+							if ($addClassesImageConf[$imagesCounter - 1]['addClassesImage']) {
+								$imageMarkers['classes'] = ' ' . $addClassesImageConf[$imagesCounter - 1]['addClassesImage'];
+							}
+						}
+
+						$columnImages[] = $this->pObj->cObj->substituteMarkerArray(
+							$single,
+							$imageMarkers,
+							'###|###',
+							1,
+							1
+						);
+
+						$currentImage++;
+					}
+
+					$rowColumn = $this->pObj->cObj->stdWrap(
+						implode(LF, $columnImages),
+						$conf['columnStdWrap.']
+					);
+
+						// Start filling the markers for columnStdWrap
+					$columnMarkers = array();
+
+					if ($addClassesColConf[$columnCounter - 1]['addClassesCol']) {
+						$columnMarkers['classes'] = ' ' . $addClassesColConf[$columnCounter - 1]['addClassesCol'];
+					}
+
+					$rowColumns[] = $this->pObj->cObj->substituteMarkerArray(
+						$rowColumn,
+						$columnMarkers,
+						'###|###',
+						1,
+						1
+					);
+				}
+				if ($noRows) {
+					$rowConfiguration = $conf['noRowsStdWrap.'];
+				} elseif ($rowCounter == $rowCount) {
+					$rowConfiguration = $conf['lastRowStdWrap.'];
 				} else {
-					$allRows .= $thisImage;
+					$rowConfiguration = $conf['rowStdWrap.'];
 				}
-				$GLOBALS['TSFE']->register['columnwidth'] = $maxImageSpace + $tmpColspacing;
-				if ($separateRows && ($colPos == ($colCount-1) || $i+1==count($imgsTag)))	{
-					// Close this row at the end (colCount), or the last row at the final end
-					$allRows .= $this->pObj->cObj->stdWrap($thisRow, $conf['imageRowStdWrap.']);
+
+				$row = $this->pObj->cObj->stdWrap(
+					implode(LF, $rowColumns),
+					$rowConfiguration
+				);
+
+					// Start filling the markers for columnStdWrap
+				$rowMarkers = array();
+
+				$rows[] = $this->pObj->cObj->substituteMarkerArray(
+					$row,
+					$rowMarkers,
+					'###|###',
+					1,
+					1
+				);
+			}
+
+			$images = $this->pObj->cObj->stdWrap(
+				implode(LF, $rows),
+				$conf['allStdWrap.']
+			);
+				// Start filling the markers for allStdWrap
+			$allMarkers = array();
+			$classes = array();
+
+				// Add the global caption to the allStdWrap marker array if set
+			if ($globalCaption) {
+				$allMarkers['caption'] = $globalCaption;
+				if ($captionAlign) {
+					$classes[] = $classCaptionAlign[$captionAlign];
 				}
 			}
-			if ($separateRows)	{
-				$thisImages .= $allRows;
-			} else {
-				$thisImages .= $this->pObj->cObj->stdWrap($allRows, $conf['noRowsStdWrap.']);
+
+				// Add the border class if needed
+			if ($border){
+				$classes[] = $conf['borderClass'] ? $conf['borderClass'] : 'csc-textpic-border';
 			}
-			if ($noRows)	{
-					// Only needed to make columns, rather than rows:
-				$images .= $this->pObj->cObj->stdWrap($thisImages, $conf['imageColumnStdWrap.']);
-			} else {
-				$images .= $thisImages;
+
+				// Add the class for equal height if needed
+			if ($equalHeight) {
+				$classes[] = 'csc-textpic-equalheight';
 			}
-		}
 
-			// Add the global caption, if not split
-		if ($caption)	{
-			$images .= $caption;
-		}
+			$addClasses = $this->pObj->cObj->stdWrap($conf['addClasses'], $conf['addClasses.']);
+			if ($addClasses) {
+				$classes[] = $addClasses;
+			}
 
-			// CSS-classes
-		$captionClass = '';
-		$classCaptionAlign = array(
-			'center' => 'csc-textpic-caption-c',
-			'right' => 'csc-textpic-caption-r',
-			'left' => 'csc-textpic-caption-l',
-		);
-		$captionAlign = $this->pObj->cObj->stdWrap($conf['captionAlign'], $conf['captionAlign.']);
-		if ($captionAlign)	{
-			$captionClass = $classCaptionAlign[$captionAlign];
-		}
-		$borderClass = '';
-		if ($border)	{
-			$borderClass = 'csc-textpic-border';
-		}
+			if ($classes) {
+				$class = ' ' . implode(' ', $classes);
+			}
 
-			// Multiple classes with all properties, to be styled in CSS
-		$class = '';
-		$class .= ($borderClass? ' '.$borderClass:'');
-		$class .= ($captionClass? ' '.$captionClass:'');
-		$class .= ($equalHeight? ' csc-textpic-equalheight':'');
-		$addClasses = $this->pObj->cObj->stdWrap($conf['addClasses'], $conf['addClasses.']);
-		$class .= ($addClasses ? ' '.$addClasses:'');
-
-			// Do we need a width in our wrap around images?
-		$imgWrapWidth = '';
-		if ($position == 0 || $position == 8)	{
-				// For 'center' we always need a width: without one, the margin:auto trick won't work
-			$imgWrapWidth = $imageBlockWidth;
-		}
-		if ($rowCount > 1)	{
-				// For multiple rows we also need a width, so that the images will wrap
-			$imgWrapWidth = $imageBlockWidth;
-		}
-		if ($caption)	{
-				// If we have a global caption, we need the width so that the caption will wrap
-			$imgWrapWidth = $imageBlockWidth;
-		}
-
-			// Wrap around the whole image block
-		$GLOBALS['TSFE']->register['totalwidth'] = $imgWrapWidth;
-		if ($imgWrapWidth)	{
-			$images = $this->pObj->cObj->stdWrap($images, $conf['imageStdWrap.']);
+				// Fill the markers for the allStdWrap
+			$images = $this->pObj->cObj->substituteMarkerArray(
+				$images,
+				$allMarkers,
+				'###|###',
+				1,
+				1
+			);
 		} else {
-			$images = $this->pObj->cObj->stdWrap($images, $conf['imageStdWrapNoWidth.']);
+				// Apply optionSplit to the list of classes that we want to add to each image
+			$addClassesImage = $conf['addClassesImage'];
+			if (isset($conf['addClassesImage.'])) {
+				$addClassesImage = $this->pObj->cObj->stdWrap($addClassesImage, $conf['addClassesImage.']);
+			}
+			$addClassesImageConf = $GLOBALS['TSFE']->tmpl->splitConfArray(array('addClassesImage' => $addClassesImage), $colCount);
+
+				// Render the images
+			$images = '';
+			for ($c = 0; $c < $imageWrapCols; $c++) {
+				$tmpColspacing = $colspacing;
+				if (($c == $imageWrapCols - 1 && $imagePosition == 2) || ($c == 0 && ($imagePosition == 1 || $imagePosition == 0))) {
+						// Do not add spacing after column if we are first column (left) or last column (center/right)
+					$tmpColspacing = 0;
+				}
+
+				$thisImages = '';
+				$allRows = '';
+				$maxImageSpace = 0;
+				for ($i = $c; $i < count($imgsTag); $i = $i + $imageWrapCols) {
+					$imgKey = $i + $imgStart;
+					$colPos = $i % $colCount;
+					if ($separateRows && $colPos == 0) {
+						$thisRow = '';
+					}
+
+							// add DAM metadata to current object
+					$this->addMetaToData($imgsExtraData[$i]);
+
+						// Render one image
+					if($origImages[$imgKey][0]==0) {
+						$imageSpace = $this->pObj->cObj->data['imagewidth'] + $border * ($borderSpace + $borderThickness) * 2;
+					} else {
+						$imageSpace = $origImages[$imgKey][0] + $border * ($borderSpace + $borderThickness) * 2;
+					}
+
+					$GLOBALS['TSFE']->register['IMAGE_NUM'] = $imgKey;
+					$GLOBALS['TSFE']->register['IMAGE_NUM_CURRENT'] = $imgKey;
+					$GLOBALS['TSFE']->register['ORIG_FILENAME'] = $origImages[$imgKey]['origFile'];
+					$GLOBALS['TSFE']->register['imagewidth'] = $origImages[$imgKey][0];
+					$GLOBALS['TSFE']->register['imagespace'] = $imageSpace;
+					$GLOBALS['TSFE']->register['imageheight'] = $origImages[$imgKey][1];
+					if ($imageSpace > $maxImageSpace) {
+						$maxImageSpace = $imageSpace;
+					}
+					$thisImage = '';
+					$thisImage .= $this->pObj->cObj->stdWrap($imgsTag[$imgKey], $conf['imgTagStdWrap.']);
+
+					if (!$renderGlobalCaption) {
+						$thisImage .= $this->pObj->cObj->stdWrap($this->pObj->cObj->cObjGet($conf['caption.'], 'caption.'), $conf['caption.']);
+					}
+					if ($editIconsHTML) {
+						$thisImage .= $this->pObj->cObj->stdWrap($editIconsHTML, $conf['editIconsStdWrap.']);
+					}
+					$thisImage = $this->pObj->cObj->stdWrap($thisImage, $conf['oneImageStdWrap.']);
+					$classes = '';
+					if ($addClassesImageConf[$colPos]['addClassesImage']) {
+						$classes = ' ' . $addClassesImageConf[$colPos]['addClassesImage'];
+					}
+					$thisImage = str_replace('###CLASSES###', $classes, $thisImage);
+
+					if ($separateRows) {
+						$thisRow .= $thisImage;
+					} else {
+						$allRows .= $thisImage;
+					}
+					$GLOBALS['TSFE']->register['columnwidth'] = $maxImageSpace + $tmpColspacing;
+
+
+						// Close this row at the end (colCount), or the last row at the final end
+					if ($separateRows && ($i + 1 == count($imgsTag))) {
+							// Close the very last row with either normal configuration or lastRow stdWrap
+						$allRows .= $this->pObj->cObj->stdWrap($thisRow, (is_array($conf['imageLastRowStdWrap.']) ? $conf['imageLastRowStdWrap.'] : $conf['imageRowStdWrap.']));
+					} elseif ($separateRows && $colPos == $colCount - 1) {
+						$allRows .= $this->pObj->cObj->stdWrap($thisRow, $conf['imageRowStdWrap.']);
+					}
+				}
+				if ($separateRows) {
+					$thisImages .= $allRows;
+				} else {
+					$thisImages .= $this->pObj->cObj->stdWrap($allRows, $conf['noRowsStdWrap.']);
+				}
+				if ($noRows) {
+						// Only needed to make columns, rather than rows:
+					$images .= $this->pObj->cObj->stdWrap($thisImages, $conf['imageColumnStdWrap.']);
+				} else {
+					$images .= $thisImages;
+				}
+			}
+
+				// Add the global caption, if not split
+			if ($globalCaption) {
+				$images .= $globalCaption;
+			}
+
+				// CSS-classes
+			$captionClass = '';
+			$classCaptionAlign = array(
+				'center' => 'csc-textpic-caption-c',
+				'right' => 'csc-textpic-caption-r',
+				'left' => 'csc-textpic-caption-l',
+			);
+			$captionAlign = $this->pObj->cObj->stdWrap($conf['captionAlign'], $conf['captionAlign.']);
+			if ($captionAlign) {
+				$captionClass = $classCaptionAlign[$captionAlign];
+			}
+			$borderClass = '';
+			if ($border) {
+				$borderClass = $conf['borderClass'] ? $conf['borderClass'] : 'csc-textpic-border';
+			}
+
+				// Multiple classes with all properties, to be styled in CSS
+			$class = '';
+			$class .= ($borderClass ? ' ' . $borderClass : '');
+			$class .= ($captionClass ? ' ' . $captionClass : '');
+			$class .= ($equalHeight ? ' csc-textpic-equalheight' : '');
+			$addClasses = $this->pObj->cObj->stdWrap($conf['addClasses'], $conf['addClasses.']);
+			$class .= ($addClasses ? ' ' . $addClasses : '');
+
+				// Do we need a width in our wrap around images?
+			$imgWrapWidth = '';
+			if ($position == 0 || $position == 8) {
+					// For 'center' we always need a width: without one, the margin:auto trick won't work
+				$imgWrapWidth = $imageBlockWidth;
+			}
+			if ($rowCount > 1) {
+					// For multiple rows we also need a width, so that the images will wrap
+				$imgWrapWidth = $imageBlockWidth;
+			}
+			if ($globalCaption) {
+					// If we have a global caption, we need the width so that the caption will wrap
+				$imgWrapWidth = $imageBlockWidth;
+			}
+
+				// Wrap around the whole image block
+			$GLOBALS['TSFE']->register['totalwidth'] = $imgWrapWidth;
+			if ($imgWrapWidth) {
+				$images = $this->pObj->cObj->stdWrap($images, $conf['imageStdWrap.']);
+			} else {
+				$images = $this->pObj->cObj->stdWrap($images, $conf['imageStdWrapNoWidth.']);
+			}
 		}
 
 		$output = $this->pObj->cObj->cObjGetSingle($conf['layout'], $conf['layout.']);
@@ -532,7 +795,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$output = $this->pObj->cObj->stdWrap($output, $conf['stdWrap.']);
 		}
 
-		$this->removeMetaFromData ();
+		$this->removeMetaFromData();
 
 		return $output;
 	}

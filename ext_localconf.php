@@ -57,7 +57,6 @@ if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_css_styled_hook']) {
 	$TYPO3_CONF_VARS['EXTCONF']['css_styled_content']['pi1_hooks']['render_textpic'] = 'EXT:dam_ttcontent/pi_cssstyledcontent/class.tx_damttcontent_pi1.php:&tx_damttcontent_pi1';
 }
 
-
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/class.tx_cms_layout.php']['tt_content_drawItem'][$_EXTKEY] = $PATH_damttcontent . 'hooks/class.tx_damttcontent_tt_content_drawItem.php:tx_damttcontent_tt_content_drawItem';
 
 if ($GLOBALS['T3_VAR']['ext'][$_EXTKEY]['setup']['add_ws_mod_xclass']) {
