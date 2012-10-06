@@ -172,9 +172,6 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		$GLOBALS['TSFE']->register['imageCount'] = $imgCount;
 		$GLOBALS['TSFE']->register['renderGlobalCaption'] = $renderGlobalCaption;
 		$fallbackRenderMethod = $this->pObj->cObj->cObjGetSingle($conf['fallbackRendering'], $conf['fallbackRendering.']);
-		if ($fallbackRenderMethod && is_array($conf['rendering.'][$fallbackRenderMethod . '.']))	{
-			$conf = $this->pObj->cObj->joinTSarrays($conf, $conf['rendering.'][$fallbackRenderMethod . '.']);
-		}
 
 			// Set the accessibility mode which uses a different type of markup, used 4.7+
 		$accessibilityMode = FALSE;
