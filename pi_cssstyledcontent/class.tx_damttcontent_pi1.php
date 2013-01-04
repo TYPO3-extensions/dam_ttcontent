@@ -205,7 +205,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 
 		$borderColor = $borderColor?$borderColor:'black';
 		$borderThickness = $borderThickness?$borderThickness:1;
-		$borderSpace = (($conf['borderSpace']&&$border) ? intval($conf['borderSpace']) : 0);
+		$borderSpace = (($conf['borderSpace'] && $border) ? intval($conf['borderSpace']) : 0);
 
 			// Generate cols
 		$cols = intval($this->pObj->cObj->stdWrap($conf['cols'],$conf['cols.']));
@@ -233,22 +233,6 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			} else {
 				$maxW = $maxWInText;
 			}
-		}
-
-			// Set the margin for image + text, no wrap always to avoid multiple stylesheets
-		if ($accessibilityMode) {
-			$noWrapMargin = (integer) (($maxWInText ? $maxWInText : $fiftyPercentWidthInText) +
-				intval($this->pObj->cObj->stdWrap($conf['textMargin'],$conf['textMargin.'])));
-
-			$this->addPageStyle(
-				'.csc-textpic-intext-right-nowrap .csc-textpic-text',
-				'margin-right: ' . $noWrapMargin . 'px;'
-			);
-
-			$this->addPageStyle(
-				'.csc-textpic-intext-left-nowrap .csc-textpic-text',
-				'margin-left: ' . $noWrapMargin . 'px;'
-			);
 		}
 
 			// max usuable width for images (without spacers and borders)
@@ -440,7 +424,7 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 		if (!is_array($conf['editIcons.'])) {
 			$conf['editIcons.'] = array();
 		}
-		$editIconsHTML = $conf['editIcons']&&$GLOBALS['TSFE']->beUserLogin ? $this->pObj->cObj->editIcons('',$conf['editIcons'],$conf['editIcons.']) : '';
+		 $editIconsHTML = $conf['editIcons'] && $GLOBALS['TSFE']->beUserLogin ? $this->pObj->cObj->editIcons('',$conf['editIcons'],$conf['editIcons.']) : '';
 
 			// If noRows, we need multiple imagecolumn wraps
 		$imageWrapCols = 1;
@@ -625,6 +609,45 @@ class tx_damttcontent_pi1 extends tx_cssstyledcontent_pi1 {
 			$addClasses = $this->pObj->cObj->stdWrap($conf['addClasses'], $conf['addClasses.']);
 			if ($addClasses) {
 				$classes[] = $addClasses;
+			}
+
+			// Set the margin for image + text, no wrap always to avoid multiple stylesheets
+			$noWrapMargin = (integer) (($maxWInText ? $maxWInText : $fiftyPercentWidthInText) +
+				intval($this->pObj->cObj->stdWrap($conf['textMargin'],$conf['textMargin.']
+			)));
+
+			$this->addPageStyle(
+				'.csc-textpic-intext-right-nowrap .csc-textpic-text',
+				'margin-right: ' . $noWrapMargin . 'px;'
+			);
+
+			$this->addPageStyle(
+				'.csc-textpic-intext-left-nowrap .csc-textpic-text',
+				'margin-left: ' . $noWrapMargin . 'px;'
+			);
+
+				// Beside Text where the image block width is not equal to maxW
+			if ($contentPosition == 24 && $maxW != $imageBlockWidth) {
+				$noWrapMargin = $imageBlockWidth + $textMargin;
+
+					// Beside Text, Right
+				if ($imagePosition == 1) {
+					$this->addPageStyle(
+						'.csc-textpic-intext-right-nowrap-' . $noWrapMargin . ' .csc-textpic-text',
+						'margin-right: ' . $noWrapMargin . 'px;'
+					);
+
+					$classes[] = 'csc-textpic-intext-right-nowrap-' . $noWrapMargin;
+
+					// Beside Text, Left
+				} elseif ($imagePosition == 2) {
+					$this->addPageStyle(
+						'.csc-textpic-intext-left-nowrap-' . $noWrapMargin . ' .csc-textpic-text',
+						'margin-left: ' . $noWrapMargin . 'px;'
+					);
+
+					$classes[] = 'csc-textpic-intext-left-nowrap-' . $noWrapMargin;
+				}
 			}
 
 			if ($classes) {
